@@ -12,7 +12,7 @@ Features
 *   Watches for new images in the input folder.
 *   Resizes and compresses images.
 *   Archives original images.
-*   Adds a customizable watermark to images.
+*   Adds a customizable watermark to images. This feature can be enabled or disabled as per user preference.
 
 Prerequisites
 -------------
@@ -52,63 +52,14 @@ Configuration
 
 The script can be configured to handle different image types, optimization levels, and watermarking. Below are the configurable options:
 
-### File Types
+### Watermark Enabled/Disabled
 
-The script processes the following image file extensions:
+The watermark feature can be toggled on or off by setting the `WATERMARK_ENABLED` variable at the beginning of the script:
 
-*   jpg
-*   jpeg
-*   png
-*   tiff
-*   webm
-*   heic
+    WATERMARK_ENABLED="yes" # Enable watermark
+    WATERMARK_ENABLED="no" # Disable watermark
 
-Modify the list of supported file types by editing the regular expression:
-
-    if [[ $EXTENSION =~ ^(jpg|jpeg|png|tiff|webm|heic)$ ]]; then
-
-### File Naming
-
-The script generates new filenames based on the current date and a counter. Format: `mmdd+pcpart+counter.jpg`. Modify the prefix or structure:
-
-    NEW_FILENAME="$(date +%m%d)+pcpart+$COUNTER.jpg"
-
-### Image Conversion, Optimization, and Watermarking
-
-By default, images are converted to JPEG format with a quality setting of 75 and resized to a maximum width of 600 pixels. These settings, along with watermarking, are adjustable in the `convert` command:
-
-    convert "$SORTED_FILEPATH" -auto-orient -strip -quality 75 -resize 600x \
-            -gravity southeast -pointsize 12 -fill white -annotate +10+10 "Your Watermark Here" \
-            "$PROCESSED_FOLDER/$NEW_FILENAME"
-
-*   `-auto-orient`: Corrects orientation based on EXIF data.
-*   `-strip`: Removes profiles or comments to reduce size.
-*   `-quality 75`: Sets compression level.
-*   `-resize 600x`: Resizes image, maintaining aspect ratio.
-*   Watermark Options:
-
-*   `-gravity southeast`: Positions the watermark (change as needed).
-*   `-pointsize 12`: Font size of the watermark text.
-*   `-fill white`: Color of the watermark text.
-*   `-annotate +10+10 "Your Watermark Here"`: The watermark text and its position.
-
-### Further Compression with jpegoptim
-
-For additional JPEG optimization:
-
-    jpegoptim --max=80 "$PROCESSED_FOLDER/$NEW_FILENAME"
-
-`--max=80`: Sets maximum quality to 80%. Adjust as needed.
-
-### Incrementing Counter
-
-The counter variable ensures unique filenames:
-
-    let COUNTER=COUNTER+1
-
-Reset or modify the counter as required.
-
-Review and test the script after changes to ensure functionality.
+When enabled, the watermark will be added to the processed images as specified in the script's watermark settings.
 
 Contributing
 ------------

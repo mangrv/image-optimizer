@@ -4,6 +4,7 @@ INPUT_FOLDER="/input" #add your directory
 PROCESSED_FOLDER="/processed" #add your directory
 ARCHIVE_FOLDER="/archive" #add your directory
 COUNTER=1
+WATERMARK_ENABLED="yes" # Set to "yes" to enable watermark, "no" to disable
 WATERMARK_TEXT="Your Watermark Here" # Customize your watermark text here
 
 fswatch -o "$INPUT_FOLDER" | while read
@@ -28,9 +29,14 @@ do
     if [[ $EXTENSION =~ ^(jpg|jpeg|png|tiff|webm|heic)$ ]]; then
       # Format: mmdd+pcpart+counter
       NEW_FILENAME="$(date +%m%d)+pcpart+$COUNTER.jpg" # Changed to .jpg
-      convert "$SORTED_FILEPATH" -auto-orient -strip -quality 75 -resize 600x \
-              -gravity southeast -pointsize 12 -fill white -annotate +10+10 "$WATERMARK_TEXT" \
-              "$PROCESSED_FOLDER/$NEW_FILENAME"
+      if [[ $WATERMARK_ENABLED == "yes" ]]; then
+        convert "$SORTED_FILEPATH" -auto-orient -strip -quality 75 -resize 600x \
+                -gravity southeast -pointsize 12 -fill white -annotate +10+10 "$WATERMARK_TEXT" \
+                "$PROCESSED_FOLDER/$NEW_FILENAME"
+      else
+        convert "$SORTED_FILEPATH" -auto-orient -strip -quality 75 -resize 600x \
+                "$PROCESSED_FOLDER/$NEW_FILENAME"
+      fi
       jpegoptim --max=80 "$PROCESSED_FOLDER/$NEW_FILENAME" # Additional compression with jpegoptim
       let COUNTER=COUNTER+1
     fi
