@@ -116,7 +116,7 @@ This project is licensed under the [GNU General Public License v3.0](https://www
 Contact
 -------
 
-For support or contributions, please visit your [GitHub profile](https://github.com/mangrv/image-optimizer/).
+For support or contributions, please visit our [GitHub Repo](https://github.com/mangrv/image-optimizer/).
 
 Acknowledgements
 ----------------
