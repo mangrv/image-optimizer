@@ -1,12 +1,10 @@
- Image Optimizer README
-
-Image Optimizer
-===============
+Image Optimizer README
+======================
 
 Introduction
 ------------
 
-This script is designed to monitor an input directory for new images and optimize them for use on the web.
+This script is designed to monitor an input directory for new images and optimize them for use on the web, including resizing, compressing, and watermarking.
 
 Features
 --------
@@ -14,6 +12,7 @@ Features
 *   Watches for new images in the input folder.
 *   Resizes and compresses images.
 *   Archives original images.
+*   Adds a customizable watermark to images.
 
 Prerequisites
 -------------
@@ -30,7 +29,6 @@ Clone this repository to use the Image Optimizer on your local machine:
 
     git clone https://github.com/mangrv/image-optimizer.git
     cd image-optimizer
-        
 
 Usage
 -----
@@ -40,7 +38,6 @@ Modify the script to point to your specific directories:
     INPUT_FOLDER="/path/to/input"
     PROCESSED_FOLDER="/path/to/processed"
     ARCHIVE_FOLDER="/path/to/archive"
-        
 
 Run the script with:
 
@@ -51,11 +48,11 @@ Add images to the input folder and the script will automatically process them.
 Configuration
 -------------
 
-The script can be configured to handle different image types and optimization levels. Below are the configurable options:
+The script can be configured to handle different image types, optimization levels, and watermarking. Below are the configurable options:
 
 ### File Types
 
-The script is set up to process the following image file extensions:
+The script processes the following image file extensions:
 
 *   jpg
 *   jpeg
@@ -64,44 +61,52 @@ The script is set up to process the following image file extensions:
 *   webm
 *   heic
 
-You can modify the list of supported file types by editing the regular expression in the following line:
+Modify the list of supported file types by editing the regular expression:
 
     if [[ $EXTENSION =~ ^(jpg|jpeg|png|tiff|webm|heic)$ ]]; then
 
 ### File Naming
 
-The script generates new filenames based on the current date and a counter. The format is `mmdd+pcpart+counter.jpg`. You can change the prefix or structure by modifying:
+The script generates new filenames based on the current date and a counter. Format: `mmdd+pcpart+counter.jpg`. Modify the prefix or structure:
 
     NEW_FILENAME="$(date +%m%d)+pcpart+$COUNTER.jpg"
 
-### Image Conversion and Optimization
+### Image Conversion, Optimization, and Watermarking
 
-By default, images are converted to JPEG format with a quality setting of 75 and resized to a maximum width of 600 pixels. These settings can be adjusted in the `convert` command:
+By default, images are converted to JPEG format with a quality setting of 75 and resized to a maximum width of 600 pixels. These settings, along with watermarking, are adjustable in the `convert` command:
 
-    convert "$SORTED_FILEPATH" -auto-orient -strip -quality 75 -resize 600x "$PROCESSED_FOLDER/$NEW_FILENAME"
+    convert "$SORTED_FILEPATH" -auto-orient -strip -quality 75 -resize 600x \
+            -gravity southeast -pointsize 12 -fill white -annotate +10+10 "Your Watermark Here" \
+            "$PROCESSED_FOLDER/$NEW_FILENAME"
 
-*   `-auto-orient`: Corrects the orientation based on EXIF data.
-*   `-strip`: Removes any profiles or comments to reduce size.
-*   `-quality 75`: Sets the compression level (0 to 100; higher means better quality and larger file size).
-*   `-resize 600x`: Resizes the image to a maximum width of 600 pixels while maintaining aspect ratio.
+*   `-auto-orient`: Corrects orientation based on EXIF data.
+*   `-strip`: Removes profiles or comments to reduce size.
+*   `-quality 75`: Sets compression level.
+*   `-resize 600x`: Resizes image, maintaining aspect ratio.
+*   Watermark Options:
+
+*   `-gravity southeast`: Positions the watermark (change as needed).
+*   `-pointsize 12`: Font size of the watermark text.
+*   `-fill white`: Color of the watermark text.
+*   `-annotate +10+10 "Your Watermark Here"`: The watermark text and its position.
 
 ### Further Compression with jpegoptim
 
-For additional optimization of JPEG files, the `jpegoptim` command is used:
+For additional JPEG optimization:
 
     jpegoptim --max=80 "$PROCESSED_FOLDER/$NEW_FILENAME"
 
-`--max=80`: Sets the maximum quality to 80%. You can adjust the quality percentage as needed.
+`--max=80`: Sets maximum quality to 80%. Adjust as needed.
 
 ### Incrementing Counter
 
-The counter variable ensures that each processed file has a unique name:
+The counter variable ensures unique filenames:
 
     let COUNTER=COUNTER+1
 
-You can reset or modify the counter's behavior as per your requirements.
+Reset or modify the counter as required.
 
-Remember to review and test the script after making any changes to ensure it functions as expected.
+Review and test the script after changes to ensure functionality.
 
 Contributing
 ------------

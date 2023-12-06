@@ -1,8 +1,8 @@
 #!/bin/bash
 
-INPUT_FOLDER="/input" #add your directory
-PROCESSED_FOLDER="/processed" #add your directory
-ARCHIVE_FOLDER="/archive" #add your directory
+INPUT_FOLDER="/Users/cmdnotfound/Documents/inventoryImages/input"
+PROCESSED_FOLDER="/Users/cmdnotfound/Documents/inventoryImages/processed"
+ARCHIVE_FOLDER="/Users/cmdnotfound/Documents/inventoryImages/archive"
 COUNTER=1
 
 fswatch -o "$INPUT_FOLDER" | while read
