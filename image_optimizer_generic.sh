@@ -6,13 +6,15 @@ PROCESSED_FOLDER="/processed" # Add your directory
 ARCHIVE_FOLDER="/archive" # Add your directory
 COUNTER=1
 WATERMARK_ENABLED="yes" # Set to "yes" to enable watermark, "no" to disable
-WATERMARK_TYPE="" # Will be set by the user to "text" or "image"
+WATERMARK_TYPE="image" # Will be set by the user to "text" or "image"
 WATERMARK_TEXT="Your Watermark Here" # Customize your watermark text here
 WATERMARK_IMAGE_PATH="/path/to/watermark/image.png" # Path to your watermark image
+WATERMARK_OPACITY="50%" # Set watermark transparency (e.g., 50%)
+WATERMARK_POSITION="center_center" # Options: left_center, center_center, right_center, etc.
+WATERMARK_SCALE="0.5" # Scale of watermark relative to the image (0.5 for half, 0.25 for a quarter, 0.75 for three quarters)
 RESIZE_ENABLED="no" # Set to "yes" to enable resizing to 800x, "no" to keep original size
 ARCHIVE_TIME_LIMIT=1440 # Age in minutes to archive the files
 FILENAME_PART="optimized" # Part of the filename
-WATERMARK_POSITION="bottom_right_center" # Options: left_center, center_center, right_center, etc.
 
 # Prompt user for watermark type
 echo "Select watermark type (text/image):"
@@ -73,10 +75,21 @@ do
         GRAVITY=$(get_gravity "$WATERMARK_POSITION")
         
         if [[ $WATERMARK_TYPE == "image" ]]; then
-          # Apply image watermark, resize it to a width of 200 pixels
-          composite -gravity $GRAVITY -geometry +0+0 \
-            \( "$WATERMARK_IMAGE_PATH" -resize 200x \) \
-            "$PROCESSED_FOLDER/$NEW_FILENAME" "$PROCESSED_FOLDER/$NEW_FILENAME"
+          # Calculate watermark dimensions
+          MAX_DIM=$(echo "$IMAGE_WIDTH * $WATERMARK_SCALE" | bc)
+
+          # Resize the watermark image while maintaining aspect ratio
+          TEMP_WATERMARK="/tmp/temp_watermark.png"
+          convert "$WATERMARK_IMAGE_PATH" -resize ${MAX_DIM}x${MAX_DIM} \
+                  "$TEMP_WATERMARK"
+
+          # Apply the watermark with 50% transparency
+          composite -dissolve 50% -gravity $GRAVITY -geometry +0+0 \
+                    "$TEMP_WATERMARK" "$PROCESSED_FOLDER/$NEW_FILENAME" \
+                    "$PROCESSED_FOLDER/$NEW_FILENAME"
+          
+          # Optionally remove the temporary watermark file
+          rm "$TEMP_WATERMARK"
         elif [[ $WATERMARK_TYPE == "text" ]]; then
           # Apply text watermark
           convert -size ${IMAGE_WIDTH}x40 xc:none \
