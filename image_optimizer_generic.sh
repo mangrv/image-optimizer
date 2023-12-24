@@ -1,15 +1,22 @@
 #!/bin/bash
 
-INPUT_FOLDER="/input" #add your directory
-PROCESSED_FOLDER="/processed" #add your directory
-ARCHIVE_FOLDER="/archive" #add your directory
+# Configuration Variables
+INPUT_FOLDER="/input" # Add your directory
+PROCESSED_FOLDER="/processed" # Add your directory
+ARCHIVE_FOLDER="/archive" # Add your directory
 COUNTER=1
 WATERMARK_ENABLED="yes" # Set to "yes" to enable watermark, "no" to disable
+WATERMARK_TYPE="" # Will be set by the user to "text" or "image"
 WATERMARK_TEXT="Your Watermark Here" # Customize your watermark text here
+WATERMARK_IMAGE_PATH="/path/to/watermark/image.png" # Path to your watermark image
 RESIZE_ENABLED="no" # Set to "yes" to enable resizing to 800x, "no" to keep original size
-ARCHIVE_TIME_LIMIT=1440 # Age in minutes to archive the files, set to a high number to disable
+ARCHIVE_TIME_LIMIT=1440 # Age in minutes to archive the files
 FILENAME_PART="optimized" # Part of the filename
-WATERMARK_POSITION="bottom_right_center" # Options: left_center, center_center, right_center, bottom_left_center, bottom_center_center, bottom_right_center
+WATERMARK_POSITION="bottom_right_center" # Options: left_center, center_center, right_center, etc.
+
+# Prompt user for watermark type
+echo "Select watermark type (text/image):"
+read WATERMARK_TYPE
 
 # Function to determine gravity based on position
 get_gravity() {
@@ -24,6 +31,7 @@ get_gravity() {
     esac
 }
 
+# Start the watch loop
 fswatch -o "$INPUT_FOLDER" | while read
 do
   # Create processed and archive directories if they don't exist
@@ -63,15 +71,23 @@ do
       # Add watermark if enabled
       if [[ $WATERMARK_ENABLED == "yes" ]]; then
         GRAVITY=$(get_gravity "$WATERMARK_POSITION")
-        echo "Watermark gravity is set to: $GRAVITY"  # Debugging line
-
-        # Create a watermark image with the same width as the original image and 40px in height
-        convert -size ${IMAGE_WIDTH}x40 xc:none \
-                -fill "rgba(0,0,0,0.5)" -draw "rectangle 0,0 ${IMAGE_WIDTH},40" \
-                -gravity center -pointsize 24 -fill white \
-                -annotate +0+0 "$WATERMARK_TEXT" \
-                miff:- |\
-        composite -gravity $GRAVITY -geometry +0+0 - "$PROCESSED_FOLDER/$NEW_FILENAME" "$PROCESSED_FOLDER/$NEW_FILENAME"
+        
+        if [[ $WATERMARK_TYPE == "image" ]]; then
+          # Apply image watermark, resize it to a width of 200 pixels
+          composite -gravity $GRAVITY -geometry +0+0 \
+            \( "$WATERMARK_IMAGE_PATH" -resize 200x \) \
+            "$PROCESSED_FOLDER/$NEW_FILENAME" "$PROCESSED_FOLDER/$NEW_FILENAME"
+        elif [[ $WATERMARK_TYPE == "text" ]]; then
+          # Apply text watermark
+          convert -size ${IMAGE_WIDTH}x40 xc:none \
+                  -fill "rgba(0,0,0,0.5)" -draw "rectangle 0,0 ${IMAGE_WIDTH},40" \
+                  -gravity Center -pointsize 24 -fill white \
+                  -annotate +0+0 "$WATERMARK_TEXT" \
+                  miff:- |\
+          composite -gravity $GRAVITY -geometry +0+0 - "$PROCESSED_FOLDER/$NEW_FILENAME" "$PROCESSED_FOLDER/$NEW_FILENAME"
+        else
+          echo "Invalid watermark type. Skipping watermark."
+        fi
       fi
 
       jpegoptim --max=80 "$PROCESSED_FOLDER/$NEW_FILENAME" # Additional compression with jpegoptim

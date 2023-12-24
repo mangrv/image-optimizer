@@ -4,17 +4,17 @@ Image Optimizer README
 Introduction
 ------------
 
-This script is designed to monitor an input directory for new images and optimize them for use on the web. This includes resizing, compressing, adding a semi-transparent watermark, and archiving the original images.
+This script monitors an input directory for new images and optimizes them for web use. It includes features like resizing, compressing, adding customizable watermarks (text or image), and archiving original images.
 
 Features
 --------
 
 * Watches for new images in the input folder.
-* Resizes and compresses images.
+* Resizes and compresses images for web use.
 * Archives original images after a configurable time limit.
-* Adds a customizable watermark with configurable position and opacity to images. This feature can be enabled or disabled as per user preference.
-* Allows customization of the part of the output filename.
-* Utilizes the Helvetica Neue font for watermark text.
+* Adds a customizable text or image watermark with configurable position, size, and opacity. This feature can be enabled or disabled.
+* Allows customization of the output filename part.
+* Utilizes the Helvetica Neue font for watermark text (when using text watermark).
 
 Prerequisites
 -------------
@@ -57,14 +57,18 @@ The script can be configured to handle different image types, optimization level
 ### Watermark Settings
 
 - **Enable/Disable Watermark**: Toggle the watermark feature on or off.
-- **Watermark Text**: Set the text of the watermark.
+- **Watermark Type**: Choose between 'text' or 'image' watermark types.
+- **Watermark Text**: Set the text of the watermark (for text watermark).
+- **Watermark Image Path**: Specify the path to the watermark image (for image watermark).
 - **Watermark Position**: Choose the position of the watermark on the image.
-- **Watermark Font**: The font used for the watermark text.
+- **Watermark Font**: The font used for the watermark text (for text watermark).
 
 Example configurations:
 
     WATERMARK_ENABLED="yes" # Enable watermark
+    WATERMARK_TYPE="text" # Choose between 'text' or 'image'
     WATERMARK_TEXT="Your Watermark Here"
+    WATERMARK_IMAGE_PATH="/path/to/watermark/image.png"
     WATERMARK_POSITION="bottom_right_center" # Options: left_center, center_center, right_center, bottom_left_center, bottom_center_center, bottom_right_center
 
 ### Image Resizing
